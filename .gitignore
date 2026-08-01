@@ -1,0 +1,10 @@
+node_modules/
+.env
+dist/
+coverage/
+*.log
+
+.vscode/
+.agents/
+.claude/
+.windsurf/
