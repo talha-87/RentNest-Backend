@@ -4,7 +4,90 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  password       String
+  phone          String?
+  role           Role
+  status         UserStatus      @default(ACTIVE)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  properties     Property[]      @relation("LandlordProperties")
+  rentalRequests RentalRequest[] @relation("TenantRentals")
+  reviews        Review[]        @relation("TenantReviews")
+}
+
+model Category {
+  id         String     @id @default(cuid())
+  name       String     @unique
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  properties Property[]
+}
+
+model Property {
+  id          String          @id @default(cuid())
+  title       String
+  description String
+  location    String
+  price       Float
+  bedrooms    Int
+  bathrooms   Int
+  area        Float
+  image       String
+  available   Boolean         @default(true)
+  landlordId  String
+  categoryId  String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  category    Category        @relation(fields: [categoryId], references: [id])
+  landlord    User            @relation("LandlordProperties", fields: [landlordId], references: [id])
+  rentals     RentalRequest[]
+  reviews     Review[]
+}
+
+model RentalRequest {
+  id         String       @id @default(cuid())
+  tenantId   String
+  propertyId String
+  moveInDate DateTime
+  message    String?
+  status     RentalStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  payment    Payment?
+  property   Property     @relation(fields: [propertyId], references: [id])
+  tenant     User         @relation("TenantRentals", fields: [tenantId], references: [id])
+}
+
+model Payment {
+  id              String          @id @default(cuid())
+  transactionId   String          @unique
+  amount          Float
+  provider        PaymentProvider
+  status          PaymentStatus   @default(PENDING)
+  rentalRequestId String          @unique
+  paidAt          DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  rentalRequest   RentalRequest   @relation(fields: [rentalRequestId], references: [id])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  comment    String?
+  tenantId   String
+  propertyId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  property   Property @relation(fields: [propertyId], references: [id])
+  tenant     User     @relation("TenantReviews", fields: [tenantId], references: [id])
 }
 
 enum Role {
@@ -15,7 +98,7 @@ enum Role {
 
 enum UserStatus {
   ACTIVE
-  BLOCKED
+  BANNED
 }
 
 enum RentalStatus {
@@ -35,111 +118,4 @@ enum PaymentStatus {
 enum PaymentProvider {
   STRIPE
   SSLCOMMERZ
-}
-
-model User {
-  id        String @id @default(cuid())
-  name      String
-  email     String @unique
-  password  String
-  phone     String?
-  role      Role
-  status    UserStatus @default(ACTIVE)
-
-  properties      Property[]       @relation("LandlordProperties")
-  rentalRequests  RentalRequest[]  @relation("TenantRentals")
-  reviews         Review[]         @relation("TenantReviews")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Category {
-  id   String @id @default(cuid())
-  name String @unique
-
-  properties Property[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Property {
-  id          String @id @default(cuid())
-  title       String
-  description String
-  location    String
-  price       Float
-  bedrooms    Int
-  bathrooms   Int
-  area        Float
-  image       String
-  available   Boolean @default(true)
-
-  landlordId String
-  categoryId String
-
-  landlord User @relation("LandlordProperties", fields: [landlordId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
-
-  rentals RentalRequest[]
-  reviews Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model RentalRequest {
-  id String @id @default(cuid())
-
-  tenantId   String
-  propertyId String
-
-  moveInDate DateTime
-  message    String?
-
-  status RentalStatus @default(PENDING)
-
-  tenant   User @relation("TenantRentals", fields: [tenantId], references: [id])
-  property Property @relation(fields: [propertyId], references: [id])
-
-  payment Payment?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Payment {
-  id String @id @default(cuid())
-
-  transactionId String @unique
-  amount Float
-
-  provider PaymentProvider
-  status PaymentStatus @default(PENDING)
-
-  rentalRequestId String @unique
-
-  rentalRequest RentalRequest @relation(fields: [rentalRequestId], references: [id])
-
-  paidAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Review {
-  id String @id @default(cuid())
-
-  rating Int
-  comment String?
-
-  tenantId String
-  propertyId String
-
-  tenant User @relation("TenantReviews", fields: [tenantId], references: [id])
-  property Property @relation(fields: [propertyId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
