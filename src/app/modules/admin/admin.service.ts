@@ -36,6 +36,16 @@ const updateUserStatus = async (
     data: {
       status,
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 };
 

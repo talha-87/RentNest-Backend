@@ -1,6 +1,8 @@
 import express from "express";
 import auth from "../../middleware/auth";
+import validateRequest from "../../middleware/validateRequest";
 import { adminController } from "./admin.controller";
+import { updateUserStatusSchema } from "./admin.validation";
 
 const router = express.Router();
 
@@ -13,6 +15,7 @@ router.get(
 router.patch(
   "/users/:id",
   auth("ADMIN"),
+  validateRequest(updateUserStatusSchema),
   adminController.updateUserStatus
 );
 
