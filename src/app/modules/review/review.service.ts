@@ -8,16 +8,6 @@ export const createReview = async (
 ) => {
   const { propertyId, rating, comment } = payload;
 
-  console.log("Tenant ID:", tenantId);
-console.log("Property ID:", propertyId);
-const payments = await prisma.payment.findMany({
-  include: {
-    rentalRequest: true,
-  },
-});
-
-console.log("Payments:", payments);
-
   const payment = await prisma.payment.findFirst({
     where: {
       status: "COMPLETED",

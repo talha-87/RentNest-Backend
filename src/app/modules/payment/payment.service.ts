@@ -90,6 +90,17 @@ export const confirmPayment = async (
     throw new AppError(400, "Payment already completed");
   }
 
+  const paymentIntent = await stripe.paymentIntents.retrieve(
+    payment.transactionId
+  );
+
+  if (paymentIntent.status !== "succeeded") {
+    throw new AppError(
+      400,
+      "Payment has not been completed on Stripe"
+    );
+  }
+
   await prisma.payment.update({
     where: {
       id: payment.id,
@@ -113,7 +124,6 @@ export const confirmPayment = async (
     message: "Payment completed successfully",
   };
 };
-
 export const getMyPayments = async (tenantId: string) => {
   return prisma.payment.findMany({
     where: {
