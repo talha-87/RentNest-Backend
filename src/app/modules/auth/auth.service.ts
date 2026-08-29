@@ -56,6 +56,9 @@ export const loginUser = async (email: string, password: string) => {
   if (!isPasswordMatched) {
     throw new AppError(401, "Invalid credentials");
   }
+  if (user.status === "BANNED") {
+  throw new AppError(403, "Your account has been banned");
+}
 
   const options: SignOptions = {
     expiresIn: config.jwt.accessTokenExpiresIn as StringValue,
