@@ -8,6 +8,9 @@ This REST API allows **Tenants**, **Landlords**, and **Admins** to manage rental
 
 # 🚀 Live API
 
+https://rentnest-backend-1.onrender.com
+
+
 # 🔗 Repository
 
 https://github.com/talha-87/RentNest-Backend
