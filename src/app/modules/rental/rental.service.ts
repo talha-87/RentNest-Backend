@@ -20,6 +20,13 @@ export const createRental = async (
     throw new AppError(400, "Property is not available");
   }
 
+  if (property.landlordId === tenantId) {
+  throw new AppError(
+    403,
+    "You cannot rent your own property"
+  );
+}
+
   const existingRequest = await prisma.rentalRequest.findFirst({
     where: {
       tenantId,
