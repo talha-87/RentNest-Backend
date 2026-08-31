@@ -3,6 +3,7 @@ import AppError from "../../errors/AppError";
 import { ICreateProperty } from "./property.interface";
 import { Prisma } from "@prisma/client";
 
+
 export const createProperty = async (
   payload: ICreateProperty,
   landlordId: string
@@ -40,6 +41,14 @@ export const createProperty = async (
 };
 
 export const getAllProperties = async (query: Record<string, any>) => {
+  const allowedSortFields = [
+    "price",
+    "createdAt",
+    "bedrooms",
+    "bathrooms",
+    "area",
+  ];
+
   const {
     location,
     categoryId,
@@ -48,6 +57,12 @@ export const getAllProperties = async (query: Record<string, any>) => {
     sortBy,
     sortOrder,
   } = query;
+
+    const safeSortBy = allowedSortFields.includes(sortBy)
+    ? sortBy
+    : "createdAt";
+
+  const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
   const where: Prisma.PropertyWhereInput = {};
 
@@ -87,13 +102,9 @@ export const getAllProperties = async (query: Record<string, any>) => {
         },
       },
     },
-    orderBy: sortBy
-      ? {
-          [sortBy]: sortOrder === "asc" ? "asc" : "desc",
-        }
-      : {
-          createdAt: "desc",
-        },
+   orderBy: {
+  [safeSortBy]: safeSortOrder,
+},
   });
 
   return properties;
