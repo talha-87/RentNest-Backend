@@ -10,6 +10,24 @@ This REST API allows **Tenants**, **Landlords**, and **Admins** to manage rental
 
 https://rentnest-backend-1.onrender.com
 
+## 🌐 Production Usage
+
+The backend API is deployed on Render and is available through the live API URL above.
+
+For complete API testing, request examples, authentication flow, and response examples, refer to the Postman documentation provided above.
+
+### Health Check
+
+GET /
+
+Expected response:
+
+```json
+{
+  "success": true,
+  "message": "RentNest API is running..."
+}
+
 
 # 🔗 Repository
 
@@ -251,7 +269,7 @@ STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 # 👨‍💼 Admin Credentials
 
 ```text
-Email    : admin@gmail.com
+Email    : admin@rentnest.com
 Password : ********
 ```
 
