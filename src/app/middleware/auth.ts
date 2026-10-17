@@ -6,11 +6,13 @@ import AppError from "../errors/AppError";
 const auth = (...requiredRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers.authorization;
+     const authHeader = req.headers.authorization;
 
-      if (!token) {
-        throw new AppError(401, "You are not authorized");
-      }
+if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  throw new AppError(401, "You are not authorized");
+}
+
+const token = authHeader.split(" ")[1];
 
       const decoded = jwt.verify(
         token,
