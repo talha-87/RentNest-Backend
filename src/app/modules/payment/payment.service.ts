@@ -35,11 +35,34 @@ export const createPayment = async (
   }
 
   if (rental.payment) {
-    throw new AppError(
-      409,
-      "Payment already exists"
-    );
+  if (rental.payment.status === "COMPLETED") {
+    throw new AppError(409, "Payment already completed");
   }
+
+  const existingIntent = await stripe.paymentIntents.retrieve(
+    rental.payment.transactionId
+  );
+
+  if (
+    existingIntent.status === "requires_payment_method" ||
+    existingIntent.status === "requires_confirmation" ||
+    existingIntent.status === "requires_action"
+  ) {
+    if (!existingIntent.client_secret) {
+      throw new AppError(500, "Payment client secret is missing");
+    }
+
+    return {
+      clientSecret: existingIntent.client_secret,
+      payment: rental.payment,
+    };
+  }
+
+  throw new AppError(
+    409,
+    "Existing payment cannot be reused. Please contact support."
+  );
+}
 
   const paymentIntent =
     await stripe.paymentIntents.create({
