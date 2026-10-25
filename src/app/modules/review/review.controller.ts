@@ -18,12 +18,19 @@ export const createReview = catchAsync(
 );
 
 
-
 export const getReviewsByProperty = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await reviewService.getReviewsByProperty(
-      req.params.propertyId
-    );
+    const propertyId = req.params.propertyId;
+
+    if (typeof propertyId !== "string") {
+      res.status(400).json({
+        success: false,
+        message: "Invalid property ID",
+      });
+      return;
+    }
+
+    const result = await reviewService.getReviewsByProperty(propertyId);
 
     res.status(200).json({
       success: true,
