@@ -16,3 +16,19 @@ export const createReview = catchAsync(
     });
   }
 );
+
+
+
+export const getReviewsByProperty = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await reviewService.getReviewsByProperty(
+      req.params.propertyId
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Reviews retrieved successfully",
+      data: result,
+    });
+  }
+);
