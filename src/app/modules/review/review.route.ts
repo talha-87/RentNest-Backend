@@ -15,3 +15,9 @@ router.post(
 );
 
 export default router;
+
+
+router.get(
+  "/property/:propertyId",
+  reviewController.getReviewsByProperty
+);
