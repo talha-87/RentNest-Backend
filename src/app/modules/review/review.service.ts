@@ -65,3 +65,31 @@ export const createReview = async (
 
   return review;
 };
+
+
+
+export const getReviewsByProperty = async (propertyId: string) => {
+  const property = await prisma.property.findUnique({
+    where: { id: propertyId },
+    select: { id: true },
+  });
+
+  if (!property) {
+    throw new AppError(404, "Property not found");
+  }
+
+  return prisma.review.findMany({
+    where: { propertyId },
+    include: {
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
