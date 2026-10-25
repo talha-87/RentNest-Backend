@@ -161,6 +161,7 @@ export const updateProperty = async (
   });
 };
 
+
 export const deleteProperty = async (
   id: string,
   landlordId: string
@@ -175,6 +176,18 @@ export const deleteProperty = async (
 
   if (property.landlordId !== landlordId) {
     throw new AppError(403, "You are not allowed");
+  }
+
+
+  const rentalRequestCount = await prisma.rentalRequest.count({
+    where: { propertyId: id },
+  });
+
+  if (rentalRequestCount > 0) {
+    throw new AppError(
+      400,
+      "This property has rental history and cannot be deleted. Please mark it as inactive instead."
+    );
   }
 
   await prisma.property.delete({
