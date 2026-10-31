@@ -135,11 +135,13 @@ export const getSingleProperty = async (id: string) => {
   return property;
 };
 
+
 export const updateProperty = async (
   id: string,
   landlordId: string,
   payload: Partial<ICreateProperty>
 ) => {
+  // Step 1: Property আছে কি না পরীক্ষা
   const property = await prisma.property.findUnique({
     where: { id },
   });
@@ -148,18 +150,59 @@ export const updateProperty = async (
     throw new AppError(404, "Property not found");
   }
 
+  // Step 2: Property-র মালিক কি না পরীক্ষা
   if (property.landlordId !== landlordId) {
     throw new AppError(403, "You are not allowed");
   }
 
+  // Step 3: Category পরিবর্তন হলে সেটি পরীক্ষা
+  if (payload.categoryId) {
+    const category = await prisma.category.findUnique({
+      where: { id: payload.categoryId },
+    });
+
+    if (!category) {
+      throw new AppError(404, "Category not found");
+    }
+  }
+
+  // Step 4: শুধু Database-এ থাকা বৈধ Field নেওয়া
+  const {
+    title,
+    description,
+    location,
+    price,
+    bedrooms,
+    bathrooms,
+    area,
+    image,
+    available,
+    categoryId,
+  } = payload;
+
+  const updateData: Prisma.PropertyUncheckedUpdateInput = {};
+
+  if (title !== undefined) updateData.title = title;
+  if (description !== undefined) updateData.description = description;
+  if (location !== undefined) updateData.location = location;
+  if (price !== undefined) updateData.price = price;
+  if (bedrooms !== undefined) updateData.bedrooms = bedrooms;
+  if (bathrooms !== undefined) updateData.bathrooms = bathrooms;
+  if (area !== undefined) updateData.area = area;
+  if (image !== undefined) updateData.image = image;
+  if (available !== undefined) updateData.available = available;
+  if (categoryId !== undefined) updateData.categoryId = categoryId;
+
+  // Step 5: Property Update
   return prisma.property.update({
     where: { id },
-    data: payload,
+    data: updateData,
     include: {
       category: true,
     },
   });
 };
+
 
 
 export const deleteProperty = async (
