@@ -1,3 +1,4 @@
+
 export interface ICreateProperty {
   title: string;
   description: string;
@@ -8,4 +9,5 @@ export interface ICreateProperty {
   area: number;
   image: string;
   categoryId: string;
+  available?: boolean;
 }
